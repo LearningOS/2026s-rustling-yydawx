@@ -2,7 +2,6 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -36,8 +35,31 @@ where
         self.len() == 0
     }
 
+    fn bubble_up(&mut self, idx: usize) {
+        let parent = self.parent_idx(idx);
+        if idx > 1 && (self.comparator)(&self.items[idx], &self.items[parent]) {
+            self.items.swap(idx, parent);
+            self.bubble_up(parent);
+        }
+    }
+
+    fn bubble_down(&mut self, idx: usize) {
+        while self.children_present(idx) {
+            let child = self.smallest_child_idx(idx);
+            if (self.comparator)(&self.items[child], &self.items[idx]) {
+                self.items.swap(idx, child);
+                self.bubble_down(child);
+            } else {
+                break;
+            }
+        }
+    }
+
     pub fn add(&mut self, value: T) {
         //TODO
+        self.count += 1;
+        self.items.push(value);
+        self.bubble_up(self.count);
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,7 +80,18 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+		let left = self.left_child_idx(idx);
+        let right = self.right_child_idx(idx);
+
+        if right <= self.count {
+            if (self.comparator)(&self.items[right], &self.items[left]) {
+                right
+            } else {
+                left
+            }
+        } else {
+            left
+        }
     }
 }
 
@@ -85,7 +118,20 @@ where
 
     fn next(&mut self) -> Option<T> {
         //TODO
-		None
+        if self.is_empty() {
+            return None;
+        }
+
+        let root = self.items.swap_remove(1);
+        self.count -= 1;
+
+        if !self.is_empty() {
+            let last = self.items.pop().unwrap();
+            self.items.insert(1, last);
+            self.bubble_down(1);
+        }
+
+        Some(root)
     }
 }
 

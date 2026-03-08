@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -29,13 +28,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: std::cmp::PartialOrd + Clone> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: std::cmp::PartialOrd + Clone> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -69,14 +68,38 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+	pub fn merge(mut list_a: LinkedList<T>, mut list_b: LinkedList<T>) -> Self
+	where T: std::cmp::PartialOrd + Clone
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut merged: LinkedList<T> = LinkedList::new();
+        let mut a_index: i32 = 0;
+        let mut b_index: i32 = 0;
+        let a_len: i32 = list_a.length.try_into().unwrap();
+        let b_len: i32 = list_b.length.try_into().unwrap();
+
+        while a_index < a_len || b_index < b_len {
+            match (list_a.get(a_index), list_b.get(b_index)) {
+                (Some(a_val), Some(b_val)) => {
+                    if *a_val <= *b_val {
+                        merged.add((*a_val).clone());
+                        a_index += 1;
+                    } else {
+                        merged.add((*b_val).clone());
+                        b_index += 1;
+                    }
+                }
+                (Some(a_val), None) => {
+                    merged.add((*a_val).clone());
+                    a_index += 1;
+                }
+                (None, Some(b_val)) => {
+                    merged.add((*b_val).clone());
+                    b_index += 1;
+                }
+                (None, None) => break,
+            }
         }
+        merged
 	}
 }
 
